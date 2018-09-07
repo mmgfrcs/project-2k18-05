@@ -5,12 +5,12 @@ RPG Maker MV 1.5.1
 The project's current version is 0.1.6
 - Beta branch is in version 0.1.7
 - Master branch is up to date
-
+ 
 - Current VR_EscapeMenu version is 1.01r1
 - Current VR_BattleMenu version is 1.01r1
 - Current VR_MainMenu version is 1.00r1
 - Current VR_CoreMechanics version is 1.02r1
-
+ 
 - Current YEP_CoreEngine version is 1.30r1
 - Current YEP_BattleEngineCore version is 1.46r1
 - Current YEP_BuffsStatesCore version is 1.16r1
