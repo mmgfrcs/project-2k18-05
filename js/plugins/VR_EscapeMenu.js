@@ -1,5 +1,5 @@
 /*:
- * @plugindesc v1.0 Change the looks of the menu shown when pressing Escape (Camp Menu)
+ * @plugindesc v1.01 Change the looks of the menu shown when pressing Escape (Camp Menu)
  * @author VR
  *
  * @param Menu Background
@@ -23,23 +23,15 @@
  * @requiredAssets img/pictures/Fountain
  * @help
  * No Plugin Commands Available
+ *
+ * Changes
+ * v1.01 Removed Max Party Members and Restore All - that function is provided by 
+ * VR_CoreMechanics now.
  */
  
 var offset = Number(PluginManager.parameters("VR_EscapeMenu")['Menu Offset']);
 var bg = String(PluginManager.parameters("VR_EscapeMenu")['Menu Background']);
 var helpTexts = JSON.parse(PluginManager.parameters("VR_EscapeMenu")['Camp Menu Help List'] || '[]');
-
-//Game
-Game_Party.prototype.maxBattleMembers = function() {
-    return 3;
-};
-
-Actor_LevelUp = Game_Actor.prototype.levelUp;
-Game_Actor.prototype.levelUp = function(){
-	Actor_LevelUp.call(this);
-    this.recoverAll();
-};
-
 
 //Scene
 MapWindow_Create = Scene_Map.prototype.createMapNameWindow;

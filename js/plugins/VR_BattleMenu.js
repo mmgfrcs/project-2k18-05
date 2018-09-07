@@ -1,10 +1,14 @@
 /*:
- * @plugindesc v1.0 Revamp the battle menu to fit the game's theme
+ * @plugindesc v1.01 Revamp the battle menu to fit the game's theme
  * @author VR
  *
  *
  * @help
  * No Commands are available.
+ *
+ * Changes
+ * v1.01 Added Yanfly CTB override - CTB turn order now instantly vanishes when
+ * skill/item menu is open.
  */
 
 Scene_Battle.prototype.updateWindowPositions = function() {
@@ -19,6 +23,7 @@ Scene_Battle.prototype.updateWindowPositions = function() {
 		this._statusWindow.y -= 16;
 		if(this._statusWindow.y <= posY) this._statusWindow.y = posY;
 	}
+	
 };
 
 Scene_Battle.prototype.createHelpWindow = function() {
@@ -224,7 +229,18 @@ Window_CustBattleStatus.prototype.drawActorBar = function(actor, x, y, width) {
     this.drawCurrentAndMax(1, actor.mp, actor.mmp, x, y, width,
                            color1, this.mpColor(actor));
 	this.resetFontSettings();
+	
+
 };
+
+//Override Yanfly CTB
+
+if(Imported.YEP_X_BattleSysCTB) {
+	Window_CTBIcon.prototype.reduceOpacity = function() {
+		this.contentsOpacity = 0;
+	};
+}
+//Window_Base
 
 Window_Base.prototype.hpColor = function(actor, color) {
     var normal = color || this.normalColor();
@@ -242,8 +258,6 @@ Window_Base.prototype.drawCurrentAndMax = function(type, current, max, x, y, wid
     var valueWidth = this.textWidth('0000');
     var slashWidth = this.textWidth('/');
     var x1 = x + width - valueWidth;
-    var x2 = x1 - slashWidth;
-    var x3 = x2 - valueWidth;
 	/*
     if (x3 >= x + labelWidth) {
         this.changeTextColor(color1);
@@ -257,6 +271,7 @@ Window_Base.prototype.drawCurrentAndMax = function(type, current, max, x, y, wid
         if(type === 0) {
 			this.drawText(current, x1, y, valueWidth - 8, 'right');
 		}
-		else this.drawText(current, x1, y, valueWidth, 'left');
+		else this.drawText(current, x1 - 8, y, valueWidth, 'left');
     //}
 };
+

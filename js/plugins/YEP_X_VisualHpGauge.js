@@ -665,7 +665,9 @@ Window_VisualHPGauge.prototype.drawActorHp = function(actor, x, y, width) {
     }
     if (Yanfly.Param.VHGShowHP) {
       this.changeTextColor(this.systemColor());
+	  this.contents.fontSize = 19;
       this.drawText(TextManager.hpA, x, y, 44);
+	  this.contents.fontSize = 28;
     }
     if (Yanfly.Param.VHGShowValue) {
       var val = this._displayedValue

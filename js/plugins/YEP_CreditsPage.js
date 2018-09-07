@@ -3158,7 +3158,7 @@ Yanfly.Credits.Window_TitleCommand_makeCommandList =
   Window_TitleCommand.prototype.makeCommandList;
 Window_TitleCommand.prototype.makeCommandList = function() {
   Yanfly.Credits.Window_TitleCommand_makeCommandList.call(this);
-  var index = this.findSymbol('options');
+  var index = this.findSymbol('options') + 1;
   var text = Yanfly.Param.CreditsCmdName;
   var enabled = true;
   this.addCommandAt(index, text, 'credits', enabled);

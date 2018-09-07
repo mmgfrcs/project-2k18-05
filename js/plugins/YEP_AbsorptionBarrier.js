@@ -8,11 +8,11 @@ Imported.YEP_AbsorptionBarrier = true;
 
 var Yanfly = Yanfly || {};
 Yanfly.ABR = Yanfly.ABR || {};
-Yanfly.ABR.version = 1.07;
+Yanfly.ABR.version = 1.08;
 
 //=============================================================================
  /*:
- * @plugindesc v1.07 Battlers can be surrounded by an absorption barrier
+ * @plugindesc v1.08 Battlers can be surrounded by an absorption barrier
  * that would mitigate damage dealt to HP.
  * @author Yanfly Engine Plugins
  *
@@ -426,6 +426,10 @@ Yanfly.ABR.version = 1.07;
  * ============================================================================
  * Changelog
  * ============================================================================
+ *
+ * Version 1.08:
+ * - Bypass the isDevToolsOpen() error when bad code is inserted into a script
+ * call or custom Lunatic Mode code segment due to updating to MV 1.6.1.
  *
  * Version 1.07:
  * - Updated for RPG Maker MV version 1.5.0.
@@ -1462,6 +1466,7 @@ Yanfly.Util.displayError = function(e, code, message) {
   console.log(message);
   console.log(code || 'NON-EXISTENT');
   console.error(e);
+  if (Utils.RPGMAKER_VERSION && Utils.RPGMAKER_VERSION >= "1.6.0") return;
   if (Utils.isNwjs() && Utils.isOptionValid('test')) {
     if (!require('nw.gui').Window.get().isDevToolsOpen()) {
       require('nw.gui').Window.get().showDevTools();

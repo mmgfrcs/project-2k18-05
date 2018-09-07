@@ -8,11 +8,11 @@ Imported.YEP_CoreEngine = true;
 
 var Yanfly = Yanfly || {};
 Yanfly.Core = Yanfly.Core || {};
-Yanfly.Core.version = 1.25;
+Yanfly.Core.version = 1.30;
 
 //=============================================================================
 /*:
- * @plugindesc v1.25 Needed for the majority of Yanfly Engine Scripts. Also
+ * @plugindesc v1.30 Needed for the majority of Yanfly Engine Scripts. Also
  * contains bug fixes found inherently in RPG Maker.
  * @author Yanfly Engine Plugins
  *
@@ -254,6 +254,36 @@ Yanfly.Core.version = 1.25;
  * @desc Show events for the battle background snapshot?
  * SHOW - true     HIDE - false     Default: false
  * @default true
+ *
+ * @param ---Map Optimization---
+ * @desc
+ *
+ * @param Refresh Update HP
+ * @parent ---Map Optimization---
+ * @type boolean
+ * @on Show
+ * @off Hide
+ * @desc Do a full actor refresh when updating HP on map?
+ * YES - true     NO - false     Default: true
+ * @default true
+ *
+ * @param Refresh Update MP
+ * @parent ---Map Optimization---
+ * @type boolean
+ * @on Show
+ * @off Hide
+ * @desc Do a full actor refresh when updating MP on map?
+ * YES - true     NO - false     Default: true
+ * @default true
+ *
+ * @param Refresh Update TP
+ * @parent ---Map Optimization---
+ * @type boolean
+ * @on Show
+ * @off Hide
+ * @desc Do a full actor refresh when updating TP on map?
+ * YES - true     NO - false     Default: true
+ * @default false
  *
  * @param ---Font---
  * @desc
@@ -560,6 +590,14 @@ Yanfly.Core.version = 1.25;
  *   distorted by a series of overlayed effects. The plugin fixes this issue by
  *   having only one animation played over the group instead of every one.
  *
+ * Audio Volume Stacking
+ *   Sometimes when multiple sound effects are played in the same frame with
+ *   the exact settings (usually due to animaitons), the volume stacks upon
+ *   each other, causing them to not play the intended volume for the effect.
+ *   This plugin fixes this issue by preventing sound effects of the same exact
+     settings from playing during the same frame, allowing only the first to
+     go through without stacking the volume higher.
+ *
  * Event Movement Speed
  *   The movement speed of events are slightly slower than what they should be
  *   due a small error in the source code. The plugin fixes this issue and they
@@ -681,6 +719,34 @@ Yanfly.Core.version = 1.25;
  * ============================================================================
  * Changelog
  * ============================================================================
+ *
+ * Version 1.30:
+ * - Bug fixed for audio Sound Effect stacking.
+ *
+ * Version 1.29:
+ * - Bypass the isDevToolsOpen() error when bad code is inserted into a script
+ * call or custom Lunatic Mode code segment due to updating to MV 1.6.1.
+ *
+ * Version 1.28:
+ * - Upon pressing F5 to reload your game, this will close the DevTools Debug
+ * Console if it is opened before reloading. This is because reloading with it
+ * closed ends up reloading the game faster.
+ * - New plugin parameters added: Refresh Update HP, MP, and TP
+ *   - Option to choose to do a full actor refresh upon changing HP, MP, or TP
+ *   - This is to reduce overall map lagging.
+ *
+ * Version 1.27:
+ * - Updated for RPG Maker MV version 1.6.0:
+ *   - Fixing script call checks made with switches and self switches under
+ *   conditional branches due to how ES6 handles === differently.
+ *
+ * Version 1.26:
+ * - Updated for RPG Maker MV version 1.6.0:
+ *   - Removal of the destructive code in Scene_Item.update function.
+ *   - Open Console parameter now occurs after the map's been loaded or after
+ *   the battle has started. This is because after the 1.6.0 changes, loading
+ *   the console before anything else will lock up other aspects of RPG Maker
+ *   from loading properly.
  *
  * Version 1.25:
  * - Updated for RPG Maker MV version 1.5.0.
@@ -856,13 +922,20 @@ Yanfly.Param.ShowEvTrans = eval(Yanfly.Param.ShowEvTrans);
 Yanfly.Param.ShowEvSnap = String(Yanfly.Parameters['Show Events Snapshot']);
 Yanfly.Param.ShowEvSnap = eval(Yanfly.Param.ShowEvSnap);
 
+Yanfly.Param.RefreshUpdateHp = String(Yanfly.Parameters['Refresh Update HP']);
+Yanfly.Param.RefreshUpdateHp = eval(Yanfly.Param.RefreshUpdateHp);
+Yanfly.Param.RefreshUpdateMp = String(Yanfly.Parameters['Refresh Update MP']);
+Yanfly.Param.RefreshUpdateMp = eval(Yanfly.Param.RefreshUpdateMp);
+Yanfly.Param.RefreshUpdateTp = String(Yanfly.Parameters['Refresh Update TP']);
+Yanfly.Param.RefreshUpdateTp = eval(Yanfly.Param.RefreshUpdateTp);
+
 Yanfly.Param.ChineseFont = String(Yanfly.Parameters['Chinese Font']);
 Yanfly.Param.KoreanFont = String(Yanfly.Parameters['Korean Font']);
 Yanfly.Param.DefaultFont = String(Yanfly.Parameters['Default Font']);
 Yanfly.Param.FontSize = Number(Yanfly.Parameters['Font Size']);
 Yanfly.Param.TextAlign = String(Yanfly.Parameters['Text Align']);
 
-Yanfly.Param.DigitGroup = String(Yanfly.Parameters['Digit Grouping']);
+Yanfly.Param.DigitGroup = eval(String(Yanfly.Parameters['Digit Grouping']));
 Yanfly.Param.LineHeight = Number(Yanfly.Parameters['Line Height']);
 Yanfly.Param.IconWidth = Number(Yanfly.Parameters['Icon Width'] || 32);;
 Yanfly.Param.IconHeight = Number(Yanfly.Parameters['Icon Height'] || 32);;
@@ -1184,6 +1257,34 @@ DataManager.processCORENotetags4 = function(group) {
 };
 
 //=============================================================================
+// AudioManager Stacking Volume Bug Fix
+//=============================================================================
+
+Yanfly.Core.AudioManager_playSe = AudioManager.playSe;
+AudioManager.playSe = function(se) {
+    this._frameSe = this._frameSe || [];
+    if (this.uniqueCheckSe(se)) {
+      Yanfly.Core.AudioManager_playSe.call(this, se);
+      this._frameSe.push(se);
+    }
+};
+
+AudioManager.uniqueCheckSe = function(se1) {
+    if (this._frameSe.contains(se1)) return false;
+    return true;
+};
+
+AudioManager.clearUniqueCheckSe = function() {
+    this._frameSe = [];
+};
+
+Yanfly.Core.SceneManager_updateInputData = SceneManager.updateInputData;
+SceneManager.updateInputData = function() {
+    Yanfly.Core.SceneManager_updateInputData.call(this);
+    AudioManager.clearUniqueCheckSe();
+};
+
+//=============================================================================
 // SceneManager
 //=============================================================================
 
@@ -1195,8 +1296,9 @@ SceneManager._boxHeight    = Yanfly.Param.ScreenHeight
 Yanfly.Core.SceneManager_run = SceneManager.run;
 SceneManager.run = function(sceneClass) {
   Yanfly.Core.SceneManager_run.call(this, sceneClass);
-  if (!Utils.isNwjs()) return;
   Yanfly.updateResolution();
+  if (!Utils.isNwjs()) return;
+  if (Utils.RPGMAKER_VERSION && Utils.RPGMAKER_VERSION >= "1.6.0") return;
   if (Yanfly.Param.OpenConsole) Yanfly.openConsole();
 };
 
@@ -1210,12 +1312,54 @@ Yanfly.updateResolution = function() {
 };
 
 Yanfly.openConsole = function() {
+  Yanfly._openedConsole = true;
   if (Utils.isNwjs() && Utils.isOptionValid('test')) {
     var _debugWindow = require('nw.gui').Window.get().showDevTools();
-    _debugWindow.moveTo(0, 0);
+    if (_debugWindow) _debugWindow.moveTo(0, 0);
     window.focus();
   }
 };
+
+Yanfly.Core.SceneManager_onKeyDown = SceneManager.onKeyDown;
+SceneManager.onKeyDown = function(event) {
+  if (!event.ctrlKey && !event.altKey && event.keyCode === 116) {
+    if (Utils.isNwjs() && Utils.isOptionValid('test')) {
+      var win = require('nw.gui').Window.get();
+      win.closeDevTools();
+    }
+  }
+  Yanfly.Core.SceneManager_onKeyDown.call(this, event);
+};
+
+if (Utils.RPGMAKER_VERSION && Utils.RPGMAKER_VERSION >= "1.6.0") {
+
+Yanfly.openConsole = function() {
+  Yanfly._openedConsole = true;
+  if (!Yanfly.Param.OpenConsole) return;
+  if (Utils.isNwjs() && Utils.isOptionValid('test')) {
+    var win = require('nw.gui').Window.get();
+    win.showDevTools();
+    setTimeout(this.focusWindow.bind(this, win), 500);
+  }
+};
+
+Yanfly.focusWindow = function(win) {
+  win.focus();
+};
+
+Yanfly.Core.Scene_Map_update = Scene_Map.prototype.update;
+Scene_Map.prototype.update = function() {
+  Yanfly.Core.Scene_Map_update.call(this);
+  if (!Yanfly._openedConsole) Yanfly.openConsole();
+};
+
+Yanfly.Core.Scene_Battle_update = Scene_Battle.prototype.update;
+Scene_Battle.prototype.update = function() {
+  Yanfly.Core.Scene_Battle_update.call(this);
+  if (!Yanfly._openedConsole) Yanfly.openConsole();
+};
+
+}; // 1.6.0
 
 //=============================================================================
 // BattleManager
@@ -1260,6 +1404,61 @@ Game_BattlerBase.prototype.paramMax = function(paramId) {
     } else {
         return Yanfly.Param.EnemyParam;
     }
+};
+
+Yanfly.Core.Game_BattlerBase_refresh = Game_BattlerBase.prototype.refresh;
+
+Game_BattlerBase.prototype.mapRegenUpdateCheck = function(type) {
+  if ($gameParty.inBattle()) return true;
+  if (type === 'hp') {
+    return Yanfly.Param.RefreshUpdateHp;
+  } else if (type === 'mp') {
+    return Yanfly.Param.RefreshUpdateMp;
+  } else if (type === 'tp') {
+    return Yanfly.Param.RefreshUpdateTp;
+  }
+};
+
+Game_BattlerBase.prototype.setHp = function(hp) {
+  if (this._hp === hp) return;
+  this._hp = hp;
+  if (this.mapRegenUpdateCheck('hp')) {
+    this.refresh();
+  } else {
+    Yanfly.Core.Game_BattlerBase_refresh.call(this);
+  }
+};
+
+Game_BattlerBase.prototype.setMp = function(mp) {
+  if (this._mp === mp) return;
+  this._mp = mp;
+  if (this.mapRegenUpdateCheck('mp')) {
+    this.refresh();
+  } else {
+    Yanfly.Core.Game_BattlerBase_refresh.call(this);
+  }
+};
+
+Game_BattlerBase.prototype.setTp = function(tp) {
+  if (this._tp === tp) return;
+  this._tp = tp;
+  if (this.mapRegenUpdateCheck('tp')) {
+    this.refresh();
+  } else {
+    Yanfly.Core.Game_BattlerBase_refresh.call(this);
+  }
+};
+
+//=============================================================================
+// Game_Battler
+//=============================================================================
+
+Game_Battler.prototype.onTurnEnd = function() {
+  this.clearResult();
+  this.regenerateAll();
+  this.updateStateTurns();
+  this.updateBuffTurns();
+  this.removeStatesAuto(2);
 };
 
 //=============================================================================
@@ -1512,6 +1711,29 @@ Yanfly.Core.Game_Interpreter_command111 =
 Game_Interpreter.prototype.command111 = function() {
   var result = false;
   switch (this._params[0]) {
+  case 0: // Switch
+    if (this._params[2] === 0) {
+      result = $gameSwitches.value(this._params[1]);
+    } else {
+      result = !$gameSwitches.value(this._params[1]);
+    }
+    this._branch[this._indent] = result;
+    if (this._branch[this._indent] === false) this.skipBranch();
+    return true
+    break;
+  case 2: // Self Switch
+    if (this._eventId > 0) {
+      var key = [this._mapId, this._eventId, this._params[1]];
+      if (this._params[2] === 0) {
+        result = $gameSelfSwitches.value(key);
+      } else {
+        result = !$gameSelfSwitches.value(key);
+      }
+    }
+    this._branch[this._indent] = result;
+    if (this._branch[this._indent] === false) this.skipBranch();
+    return true
+    break;
   case 12:  // Script
     var code = this._params[1];
     try {
@@ -1660,6 +1882,18 @@ Scene_Boot.prototype.isGameFontLoaded = function() {
 };
 
 //=============================================================================
+// Scene_Item
+//=============================================================================
+
+if (Utils.RPGMAKER_VERSION && Utils.RPGMAKER_VERSION >= "1.6.0") {
+
+Scene_Item.prototype.update = function() {
+  Scene_ItemBase.prototype.update.call(this);
+};
+
+}; // Utils.RPGMAKER_VERSION && Utils.RPGMAKER_VERSION >= "1.6.0"
+
+//=============================================================================
 // Scene_Title
 //=============================================================================
 
@@ -1794,7 +2028,7 @@ Yanfly.Core.Sprite_Enemy_setBattler = Sprite_Enemy.prototype.setBattler;
 Sprite_Enemy.prototype.setBattler = function(battler) {
     Yanfly.Core.Sprite_Enemy_setBattler.call(this, battler);
     if (!this._enemy._alteredScreenY) {
-      this._homeY += Graphics.boxHeight - 624;
+      this._homeY += Math.floor((Graphics.boxHeight - 624) / 2);
       this._enemy._screenY = this._homeY;
       this._enemy._alteredScreenY = true;
     }
@@ -2116,10 +2350,20 @@ Window_Base.prototype.drawCurrentAndMax = function(current, max, x, y,
     var valueWidth = this.textWidth(Yanfly.Util.toGroup(max));
     var slashWidth = this.textWidth('/');
     var x1 = x + width - valueWidth;
+    var x2 = x1 - slashWidth;
+    var x3 = x2 - valueWidth;
+    if (x3 >= x + labelWidth) {
+        this.changeTextColor(color1);
+        this.drawText(Yanfly.Util.toGroup(current), x3, y, valueWidth,
+          'right');
+        this.changeTextColor(color2);
+        this.drawText('/', x2, y, slashWidth, 'right');
+        this.drawText(Yanfly.Util.toGroup(max), x1, y, valueWidth, 'right');
+    } else {
         this.changeTextColor(color1);
         this.drawText(Yanfly.Util.toGroup(current), x1, y, valueWidth,
           'right');
-
+    }
 };
 
 Window_Base.prototype.drawActorTp = function(actor, x, y, width) {
@@ -2215,9 +2459,9 @@ Window_MenuStatus.prototype.drawItemStatus = function(index) {
     var xpad = Yanfly.Param.WindowPadding + Window_Base._faceWidth;
     var x = rect.x + xpad;
     if (!eval(Yanfly.Param.MenuTpGauge)) {
-      var y = rect.y + rect.height / 2 - this.lineHeight() * 1.5;
+      var y = Math.floor(rect.y + rect.height / 2 - this.lineHeight() * 1.5);
     } else {
-      var y = rect.y;
+      var y = Math.floor(rect.y);
     }
     var width = rect.width - x - this.textPadding();
     this.drawActorSimpleStatus(actor, x, y, width);
@@ -2414,8 +2658,8 @@ Window_BattleStatus.prototype.drawBasicArea = function(rect, actor) {
 
 Window_BattleStatus.prototype.drawGaugeAreaWithTp = function(rect, actor) {
     var totalArea = this.gaugeAreaWidth() - 30;
-    var hpW = parseInt(totalArea * 108 / 300);
-    var otW = parseInt(totalArea * 96 / 300);
+    var hpW = Math.floor(parseInt(totalArea * 108 / 300));
+    var otW = Math.floor(parseInt(totalArea * 96 / 300));
     this.drawActorHp(actor, rect.x + 0, rect.y, hpW);
     this.drawActorMp(actor, rect.x + hpW + 15, rect.y, otW);
     this.drawActorTp(actor, rect.x + hpW + otW + 30, rect.y, otW);
@@ -2423,8 +2667,8 @@ Window_BattleStatus.prototype.drawGaugeAreaWithTp = function(rect, actor) {
 
 Window_BattleStatus.prototype.drawGaugeAreaWithoutTp = function(rect, actor) {
     var totalArea = this.gaugeAreaWidth() - 15;
-    var hpW = parseInt(totalArea * 201 / 315);
-    var otW = parseInt(totalArea * 114 / 315);
+    var hpW = Math.floor(parseInt(totalArea * 201 / 315));
+    var otW = Math.floor(parseInt(totalArea * 114 / 315));
     this.drawActorHp(actor, rect.x + 0, rect.y, hpW);
     this.drawActorMp(actor, rect.x + hpW + 15,  rect.y, otW);
 };
@@ -2458,18 +2702,37 @@ animationId, mirror) {
 
 Yanfly.Util = Yanfly.Util || {};
 
+if (Utils.RPGMAKER_VERSION && Utils.RPGMAKER_VERSION >= '1.5.0') {
+
 Yanfly.Util.toGroup = function(inVal) {
-  if (typeof inVal !== 'string') { inVal = String(inVal); }
-  if (!eval(Yanfly.Param.DigitGroup)) return inVal;
+  if (typeof inVal === 'string') return inVal;
+  if (!Yanfly.Param.DigitGroup) return inVal;
+  return inVal.toLocaleString('en');
   return inVal.replace(/(^|[^\w.])(\d{4,})/g, function($0, $1, $2) {
     return $1 + $2.replace(/\d(?=(?:\d\d\d)+(?!\d))/g, "$&,");
   });
 };
 
+} else {
+
+Yanfly.Util.toGroup = function(inVal) {
+  if (typeof inVal !== 'string') { inVal = String(inVal); }
+  if (!Yanfly.Param.DigitGroup) return inVal;
+  return inVal.toLocaleString('en');
+  return inVal.replace(/(^|[^\w.])(\d{4,})/g, function($0, $1, $2) {
+    return $1 + $2.replace(/\d(?=(?:\d\d\d)+(?!\d))/g, "$&,");
+  });
+};
+
+} // Utils.RPGMAKER_VERSION && Utils.RPGMAKER_VERSION >= '1.5.0'
+
+
+
 Yanfly.Util.displayError = function(e, code, message) {
   console.log(message);
   console.log(code || 'NON-EXISTENT');
   console.error(e);
+  if (Utils.RPGMAKER_VERSION && Utils.RPGMAKER_VERSION >= "1.6.0") return;
   if (Utils.isNwjs() && Utils.isOptionValid('test')) {
     if (!require('nw.gui').Window.get().isDevToolsOpen()) {
       require('nw.gui').Window.get().showDevTools();
