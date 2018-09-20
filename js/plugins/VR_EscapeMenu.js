@@ -1,5 +1,5 @@
 /*:
- * @plugindesc v1.01 Change the looks of the menu shown when pressing Escape (Camp Menu)
+ * @plugindesc v1.02 Change the looks of the menu shown when pressing Escape (Camp Menu)
  * @author VR
  *
  * @param Menu Background
@@ -25,6 +25,8 @@
  * No Plugin Commands Available
  *
  * Changes
+ * v1.02 Fixed help window of all scenes
+ *
  * v1.01 Removed Max Party Members and Restore All - that function is provided by 
  * VR_CoreMechanics now.
  */
@@ -239,7 +241,7 @@ Scene_Skill.prototype.create = function() {
 	this._menuLbl = new Window_CampMenuLbl(0, 0, "Skills");
 	this.addWindow(this._menuLbl);
 	
-	this._itemWindow.height = Graphics.boxHeight - this._menuLbl.height - this._statusWindow.height - this._helpWindow.height;
+	this._itemWindow.height = Graphics.boxHeight - this._statusWindow.height - this._helpWindow.height * 2;
 	
 	//this._statusWindow
 	//this._skillTypeWindow
@@ -257,7 +259,7 @@ Scene_Equip.prototype.create = function() {
 	this._itemWindow.height = Graphics.boxHeight - this._menuLbl.height - this._helpWindow.height;
 	
 	//this._statusWindow.height = Graphics.boxHeight - this._menuLbl.height - this._helpWindow.height;
-	this._slotWindow.height = Graphics.boxHeight - this._menuLbl.height - this._helpWindow.height - this._statusWindow.height;
+	this._slotWindow.height = Graphics.boxHeight - this._helpWindow.height * 2 - this._statusWindow.height;
 	this._compareWindow.height = this._slotWindow.height;
 	//this._itemActionWindow.height = this._slotWindow.height;
 	this._infoWindow.height = this._compareWindow.height;
@@ -267,7 +269,7 @@ Scene_Equip.prototype.create = function() {
 	//this._statusWindow
 	//this._skillTypeWindow
 
-	this._helpWindow.y = this._menuLbl.height + this._slotWindow.height + this._menuLbl.fittingHeight(2);
+	this._helpWindow.y = this._helpWindow.height + this._slotWindow.height + this._statusWindow.height;
 };
 
 

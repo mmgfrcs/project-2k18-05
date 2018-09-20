@@ -80,10 +80,11 @@ Game_Actor.prototype.levelUp = function(){
 	if(lvlRestore === 'restore') this.recoverAll();
 };
 
+/*
 Graphics._onKeyDown = function(event) {
 
 };
 
 SceneManager.onKeyDown = function(event) {
 
-};
+};*/
