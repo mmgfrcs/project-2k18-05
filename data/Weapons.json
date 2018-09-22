@@ -1,7 +1,10 @@
 [
 null,
-{"id":1,"animationId":1,"description":"A staff","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":262,"name":"Proto X","note":"","params":[0,0,2,0,6,0,0,0],"price":200,"wtypeId":1},
-{"id":2,"animationId":6,"description":"An axe used by new Resistance members","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":99,"name":"Training Axe","note":"","params":[0,0,0,0,6,0,0,0],"price":400,"wtypeId":1},
-{"id":3,"animationId":6,"description":"A sword","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":364,"name":"Sword","note":"","params":[0,0,2,0,0,0,0,0],"price":200,"wtypeId":2},
-{"id":4,"animationId":0,"description":"","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":0,"name":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"wtypeId":0}
+{"id":1,"animationId":7,"description":"A staff","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":262,"name":"Wonder Staff","note":"","params":[0,0,1,0,2,0,0,0],"price":100,"wtypeId":1},
+{"id":2,"animationId":2,"description":"An axe used by new Resistance members","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":263,"name":"Wooden Wand","note":"","params":[0,0,0,0,6,0,0,0],"price":90,"wtypeId":1},
+{"id":3,"animationId":6,"description":"A sword","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":364,"name":"Fighting Sword","note":"","params":[0,0,2,0,0,0,0,0],"price":120,"wtypeId":2},
+{"id":4,"animationId":11,"description":"","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":372,"name":"Runic Rapier","note":"","params":[0,0,2,0,1,0,1,0],"price":130,"wtypeId":2},
+{"id":5,"animationId":11,"description":"","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":371,"name":"Iron Rapier","note":"","params":[0,0,2,0,0,0,1,1],"price":110,"wtypeId":2},
+{"id":6,"animationId":6,"description":"","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":376,"name":"Runic Sword","note":"","params":[0,0,2,0,2,0,0,0],"price":140,"wtypeId":2},
+{"id":7,"animationId":1,"description":"","etypeId":1,"traits":[{"code":31,"dataId":1,"value":0},{"code":22,"dataId":0,"value":0}],"iconIndex":339,"name":"Battle Mace","note":"","params":[0,0,1,1,1,1,0,0],"price":120,"wtypeId":0}
 ]
