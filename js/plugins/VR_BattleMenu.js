@@ -240,6 +240,12 @@ if(Imported.YEP_X_BattleSysCTB) {
 		this.contentsOpacity = 0;
 	};
 }
+
+//Game_BattlerBase
+Game_BattlerBase.prototype.isDying = function() {
+    return this.isAlive() && this._hp < this.mhp * 0.2;
+};
+
 //Window_Base
 
 Window_Base.prototype.hpColor = function(actor, color) {

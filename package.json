@@ -2,6 +2,7 @@
     "name": "",
     "main": "index.html",
     "js-flags": "--expose-gc",
+    "chromium-args": "--remote-debugging-port=9222",
     "window": {
         "title": "",
         "toolbar": false,

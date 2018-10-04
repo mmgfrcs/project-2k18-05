@@ -2305,7 +2305,7 @@ Window_RowFormation.prototype.drawActorDetail = function(actor, index) {
     this.drawText(actor.name(), wx, rect.y, ww);
     var wy = rect.y + this.lineHeight();
     this.changeTextColor(this.systemColor());
-    this.drawText(actor.currentClass().name, wx, wy, ww);
+    //this.drawText(actor.currentClass().name, wx, wy, ww);
 };
 
 Window_RowFormation.prototype.updateCursor = function() {
